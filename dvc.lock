@@ -391,14 +391,14 @@ stages:
       nfiles: 14831
     - path: ./scripts/analyze_processed_dataset.py
       hash: md5
-      md5: e67889e4f9693db1181fb460c042bef5
-      size: 24002
+      md5: 2fe1477fd23647229b36405fe7dd0d56
+      size: 24654
     outs:
     - path: ./data/reporting/wildfire/
       hash: md5
-      md5: 165b72e2b0c216f0caca3953a308c584.dir
-      size: 124621
-      nfiles: 5
+      md5: 207a418afb5532b7f2ff7a0ea812f51c.dir
+      size: 454187
+      nfiles: 3
   build_manifest_dataset:
     cmd:
     - uv run ./scripts/build_manifest.py --save-dir ./data/reporting/manifest/ --dir-wildfire-dataset-train-val
