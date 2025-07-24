@@ -32,6 +32,8 @@ from bokeh.io import show
 from bokeh.layouts import column, row
 from bokeh.plotting import output_file
 from tqdm import tqdm
+import numpy as np
+import pandas as pd
 
 import pyro_dataset.filepaths.parsers as fp_parsers
 import pyro_dataset.filepaths.utils as fp_utils
@@ -45,7 +47,8 @@ from pyro_dataset.plots.report import (
     make_plot_data_for_data_splits_camera_origins_breakdown_top_k_split,
     make_plot_data_for_data_splits_month_breakdown,
     make_plot_data_for_data_splits_year_breakdown,
-    make_plot_data_for_ratio_background_images)
+    make_plot_data_for_ratio_background_images,
+)
 from pyro_dataset.utils import yaml_read, yaml_write
 
 
@@ -528,7 +531,7 @@ def compute_all_hashes(
     }
 
 
-def persist_analysis_plots(filepath_report_yaml: Path) -> None:
+def persist_analysis_plots(filepath_report_yaml: Path, dir_save: Path) -> None:
     """
     Generate the different plots for analyzing the generated datasets.
     """
@@ -536,7 +539,7 @@ def persist_analysis_plots(filepath_report_yaml: Path) -> None:
     logging.info(f"Loading the report to generate visual plots {filepath_report_yaml}")
     report = yaml_read(filepath_report_yaml)
 
-    filepath_dataset_overall_report = save_dir / "plots" / "report.html"
+    filepath_dataset_overall_report = dir_save / "plots" / "report.html"
     filepath_dataset_overall_report.parent.mkdir(parents=True, exist_ok=True)
     logging.info(f"Generating plot for data splits origin breakdown")
     origins = ["pyronear", "hpwren", "awf", "random", "adf", "unknown"]
@@ -597,6 +600,45 @@ def persist_analysis_plots(filepath_report_yaml: Path) -> None:
         )
     )
 
+def df_columns_float_to_int(df: pd.DataFrame) -> pd.DataFrame:
+    df_result = df.copy()
+    df_float_col = df.select_dtypes(include=["float64"])
+    for col in df_float_col.columns.values:
+        df_result[col] = df_result[col].astype("int64")
+    return df_result
+
+def persist_analysis_csvs(filepath_report_yaml: Path, dir_save: Path) -> None:
+    """
+    Generate and persist interesting information to look at in CSV format.
+    """
+
+    report = yaml_read(filepath_report_yaml)
+
+    report_train = report["summary"]["split"]["train"]
+    report_val = report["summary"]["split"]["val"]
+    report_test = report["summary"]["split"]["test"]
+
+    # Generating CSV for the frequencies_platform_camera_origins
+    logging.info(f"Generating CSV for the frequencies_platform_camera_origins data")
+
+    freqs_train = report_train["frequencies"]["pyronear_platform_camera_origins"]
+    freqs_val = report_val["frequencies"]["pyronear_platform_camera_origins"]
+    freqs_test = report_test["frequencies"]["pyronear_platform_camera_origins"]
+    df = pd.DataFrame(
+        [
+            {"split": "train", **freqs_train},
+            {"split": "val", **freqs_val},
+            {"split": "test", **freqs_test},
+        ]
+    )
+
+    df = df.fillna(0)
+    df = df_columns_float_to_int(df)
+    filepath_csv_plateform_camera_origins = dir_save / "csv" / "pyronear_platform_camera_origins.csv"
+    filepath_csv_plateform_camera_origins.parent.mkdir(parents=True, exist_ok=True)
+    df.to_csv(filepath_csv_plateform_camera_origins, index=False)
+    logging.info(f"Persisted CSV for camera origins breakdown in {filepath_csv_plateform_camera_origins}")
+
 
 if __name__ == "__main__":
     cli_parser = make_cli_parser()
@@ -655,6 +697,5 @@ if __name__ == "__main__":
         logger.info(
             f"Make some visualization plots based on the report.yaml file {filepath_output_yaml}"
         )
-        persist_analysis_plots(filepath_report_yaml=filepath_output_yaml)
-        ## FIXME:
-        # persist_analysis_csvs(filepath_report_yaml=filepath_output_yaml)
+        persist_analysis_plots(filepath_report_yaml=filepath_output_yaml, dir_save=save_dir)
+        persist_analysis_csvs(filepath_report_yaml=filepath_output_yaml, dir_save=save_dir)
