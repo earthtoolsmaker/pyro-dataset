@@ -612,45 +612,45 @@ if __name__ == "__main__":
         filepath_data_yaml_test = args["filepath_data_yaml_test"]
         data_yaml_train_val = yaml_read(filepath_data_yaml_train_val)
         data_yaml_test = yaml_read(filepath_data_yaml_test)
-        # logger.info(f"data_yaml test split: {data_yaml_test}")
-        # logger.info(f"data_yaml train and val splits: {data_yaml_train_val}")
-        #
-        # split_filepaths_train = get_split_filepaths(
-        #     filepath_data_yaml=filepath_data_yaml_train_val, data_split=DataSplit.TRAIN
-        # )
-        # split_filepaths_val = get_split_filepaths(
-        #     filepath_data_yaml=filepath_data_yaml_train_val, data_split=DataSplit.VAL
-        # )
-        # split_filepaths_test = get_split_filepaths(
-        #     filepath_data_yaml=filepath_data_yaml_test, data_split=DataSplit.TEST
-        # )
-        #
-        # split_summary_train = get_split_summary(split_filepaths_train)
-        # split_summary_val = get_split_summary(split_filepaths_val)
-        # split_summary_test = get_split_summary(split_filepaths_test)
-        #
-        # logger.info(f"train split summary: {split_summary_train}")
-        # logger.info(f"val split summary: {split_summary_val}")
-        # logger.info(f"test split summary: {split_summary_test}")
-        #
-        # hashes = compute_all_hashes(
-        #     filepath_data_yaml_train_val=filepath_data_yaml_train_val,
-        #     filepath_data_yaml_test=filepath_data_yaml_test,
-        # )
-        #
-        # data_leakage_summary = to_data_leakage_summary(hashes=hashes)
-        # logger.info(f"data leakage summary: {data_leakage_summary}")
-        #
+        logger.info(f"data_yaml test split: {data_yaml_test}")
+        logger.info(f"data_yaml train and val splits: {data_yaml_train_val}")
+
+        split_filepaths_train = get_split_filepaths(
+            filepath_data_yaml=filepath_data_yaml_train_val, data_split=DataSplit.TRAIN
+        )
+        split_filepaths_val = get_split_filepaths(
+            filepath_data_yaml=filepath_data_yaml_train_val, data_split=DataSplit.VAL
+        )
+        split_filepaths_test = get_split_filepaths(
+            filepath_data_yaml=filepath_data_yaml_test, data_split=DataSplit.TEST
+        )
+
+        split_summary_train = get_split_summary(split_filepaths_train)
+        split_summary_val = get_split_summary(split_filepaths_val)
+        split_summary_test = get_split_summary(split_filepaths_test)
+
+        logger.info(f"train split summary: {split_summary_train}")
+        logger.info(f"val split summary: {split_summary_val}")
+        logger.info(f"test split summary: {split_summary_test}")
+
+        hashes = compute_all_hashes(
+            filepath_data_yaml_train_val=filepath_data_yaml_train_val,
+            filepath_data_yaml_test=filepath_data_yaml_test,
+        )
+
+        data_leakage_summary = to_data_leakage_summary(hashes=hashes)
+        logger.info(f"data leakage summary: {data_leakage_summary}")
+
         filepath_output_yaml = save_dir / "report.yaml"
-        # logger.info(f"Saving report in {filepath_output_yaml}")
-        #
-        # write_report_yaml(
-        #     split_summary_train=split_summary_train,
-        #     split_summary_val=split_summary_val,
-        #     split_summary_test=split_summary_test,
-        #     filepath_output_yaml=filepath_output_yaml,
-        #     data_leakage_summary=data_leakage_summary,
-        # )
+        logger.info(f"Saving report in {filepath_output_yaml}")
+
+        write_report_yaml(
+            split_summary_train=split_summary_train,
+            split_summary_val=split_summary_val,
+            split_summary_test=split_summary_test,
+            filepath_output_yaml=filepath_output_yaml,
+            data_leakage_summary=data_leakage_summary,
+        )
 
         logger.info(
             f"Make some visualization plots based on the report.yaml file {filepath_output_yaml}"
