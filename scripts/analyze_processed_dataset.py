@@ -528,7 +528,7 @@ def compute_all_hashes(
     }
 
 
-def make_analysis_plots(filepath_report_yaml: Path) -> None:
+def persist_analysis_plots(filepath_report_yaml: Path) -> None:
     """
     Generate the different plots for analyzing the generated datasets.
     """
@@ -655,4 +655,6 @@ if __name__ == "__main__":
         logger.info(
             f"Make some visualization plots based on the report.yaml file {filepath_output_yaml}"
         )
-        make_analysis_plots(filepath_report_yaml=filepath_output_yaml)
+        persist_analysis_plots(filepath_report_yaml=filepath_output_yaml)
+        ## FIXME:
+        # persist_analysis_csvs(filepath_report_yaml=filepath_output_yaml)
