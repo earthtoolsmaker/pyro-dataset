@@ -380,3 +380,107 @@ def make_figure_for_data_splits_month_breakdown(data: dict) -> figure:
     p.legend.orientation = "vertical"
 
     return p
+
+
+def make_plot_data_for_data_splits_camera_origins_breakdown_top_k_split(
+    report: dict,
+    split: str,
+    k: int = 20,
+) -> dict:
+    """
+    Create the data dict needed for the bokeh viz layer.
+    """
+    assert split in ["train", "val", "test"]
+
+    splits = list(report["summary"]["split"].keys())
+    train = report["summary"]["split"]["train"]
+    val = report["summary"]["split"]["val"]
+    test = report["summary"]["split"]["test"]
+
+    frequencies_camera_origins_normalized_train = normalize_frequencies(
+        train["frequencies"]["pyronear_platform_camera_origins"]
+    )
+    frequencies_camera_origins_normalized_val = normalize_frequencies(
+        val["frequencies"]["pyronear_platform_camera_origins"]
+    )
+    frequencies_camera_origins_normalized_test = normalize_frequencies(
+        test["frequencies"]["pyronear_platform_camera_origins"]
+    )
+
+    camera_origins = []
+    if split == "train":
+        camera_origins = sorted(
+            frequencies_camera_origins_normalized_train.keys(),
+            key=lambda k: frequencies_camera_origins_normalized_train[k],
+            reverse=True,
+        )
+    elif split == "val":
+        camera_origins = sorted(
+            frequencies_camera_origins_normalized_val.keys(),
+            key=lambda k: frequencies_camera_origins_normalized_val[k],
+            reverse=True,
+        )
+    elif split == "test":
+        camera_origins = sorted(
+            frequencies_camera_origins_normalized_test.keys(),
+            key=lambda k: frequencies_camera_origins_normalized_test[k],
+            reverse=True,
+        )
+
+    dict_origin_values = {
+        str(camera_origin): [
+            frequencies_camera_origins_normalized_train.get(camera_origins[idx], 0),
+            frequencies_camera_origins_normalized_val.get(camera_origins[idx], 0),
+            frequencies_camera_origins_normalized_test.get(camera_origins[idx], 0),
+        ]
+        for idx, camera_origin in enumerate(camera_origins[:k])
+    }
+
+    data = {"splits": splits, **dict_origin_values}
+    return data
+
+
+def make_figure_for_data_splits_camera_origins_breakdown(
+    data: dict, split: str
+) -> figure:
+    """
+    Make the figure based on the provided data.
+    """
+
+    assert split in ["train", "val", "test"]
+    splits = data["splits"]
+    tmp = data.copy()
+    del tmp["splits"]
+    stacks = list(tmp.keys())
+    k = len(stacks)
+
+    p = figure(
+        x_range=splits,
+        height=450,
+        title=f"Data splits camera origins breakdown (top {k} for {split} split)",
+        toolbar_location=None,
+        tools="hover",
+        tooltips="$name @splits: @$name{0.0%}",
+    )
+
+    color = Category20[len(data.keys()) - 1]
+
+    p.vbar_stack(
+        stacks,
+        x="splits",
+        width=0.7,
+        color=color,
+        source=data,
+    )
+
+    p.title_location = "above"
+    p.title.align = "center"
+    p.y_range.start = 0
+    p.x_range.range_padding = 0.1
+    p.xgrid.grid_line_color = None
+    p.axis.minor_tick_line_color = None
+    p.xaxis.axis_label = "Data Splits"
+    p.yaxis.axis_label = "Breakdown"
+    p.outline_line_color = None
+
+    return p
