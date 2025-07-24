@@ -600,12 +600,14 @@ def persist_analysis_plots(filepath_report_yaml: Path, dir_save: Path) -> None:
         )
     )
 
+
 def df_columns_float_to_int(df: pd.DataFrame) -> pd.DataFrame:
     df_result = df.copy()
     df_float_col = df.select_dtypes(include=["float64"])
     for col in df_float_col.columns.values:
         df_result[col] = df_result[col].astype("int64")
     return df_result
+
 
 def persist_analysis_csvs(filepath_report_yaml: Path, dir_save: Path) -> None:
     """
@@ -634,10 +636,14 @@ def persist_analysis_csvs(filepath_report_yaml: Path, dir_save: Path) -> None:
 
     df = df.fillna(0)
     df = df_columns_float_to_int(df)
-    filepath_csv_plateform_camera_origins = dir_save / "csv" / "pyronear_platform_camera_origins.csv"
+    filepath_csv_plateform_camera_origins = (
+        dir_save / "csv" / "pyronear_platform_camera_origins.csv"
+    )
     filepath_csv_plateform_camera_origins.parent.mkdir(parents=True, exist_ok=True)
     df.to_csv(filepath_csv_plateform_camera_origins, index=False)
-    logging.info(f"Persisted CSV for camera origins breakdown in {filepath_csv_plateform_camera_origins}")
+    logging.info(
+        f"Persisted CSV for camera origins breakdown in {filepath_csv_plateform_camera_origins}"
+    )
 
 
 if __name__ == "__main__":
@@ -697,5 +703,9 @@ if __name__ == "__main__":
         logger.info(
             f"Make some visualization plots based on the report.yaml file {filepath_output_yaml}"
         )
-        persist_analysis_plots(filepath_report_yaml=filepath_output_yaml, dir_save=save_dir)
-        persist_analysis_csvs(filepath_report_yaml=filepath_output_yaml, dir_save=save_dir)
+        persist_analysis_plots(
+            filepath_report_yaml=filepath_output_yaml, dir_save=save_dir
+        )
+        persist_analysis_csvs(
+            filepath_report_yaml=filepath_output_yaml, dir_save=save_dir
+        )
